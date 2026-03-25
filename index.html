@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duel Duck AI Contest | Premium Concept Demo</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --bg-card: rgba(20, 20, 20, 0.7);
+            --primary: #FF9A00; /* Duel Duck Orange */
+            --secondary: #FFCC00; /* Duel Duck Yellow */
+            --text-main: #F5F5F7;
+            --text-dim: #A1A1A6;
+            --accent-glow: rgba(255, 154, 0, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #00FF94;
+            --danger: #FF4B4B;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Abstract Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 154, 0, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 204, 0, 0.03) 0%, transparent 40%);
+        }
+
+        /* Navigation Links (Section 2) */
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .top-nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: var(--transition);
+            border-bottom: 1px solid transparent;
+        }
+
+        .top-nav a:hover {
+            color: var(--primary);
+            border-bottom: 1px solid var(--primary);
+        }
+
+        /* Hero Section */
+        header {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(40px);
+            animation: pulse 8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(to bottom, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 1rem;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(255, 154, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 154, 0, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Shared Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, #fff, var(--text-dim));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glass Card Base */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            transition: var(--transition);
+        }
+
+        /* AI Predictor Section */
+        .predictor-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: white;
+            font-size: 1.1rem;
+            resize: none;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(255, 154, 0, 0.1);
+        }
+
+        .sample-chips {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            font-size: 0.8rem;
+            padding: 0.4rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: var(--transition);
+        }
+
+        .chip:hover {
+            background: rgba(255, 154, 0, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        #prediction-output {
+            margin-top: 2rem;
+            display: none;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .side-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .side-yes { background: var(--success); color: #000; }
+        .side-no { background: var(--danger); color: #fff; }
+
+        .stat-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+
+        .reasoning-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .reasoning-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .reasoning-list li::before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Matchup Section */
+        .matchup-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .vs-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--primary);
+            color: black;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(255, 154, 0, 0.4);
+        }
+
+        .competitor-card {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .competitor-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .competitor-type {
+            color: var(--primary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .match-btn-container {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* Contest Cards Section */
+        .contest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .contest-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .reward-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ff9a00);
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        /* Feature Section */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        /* Loading Animation */
+        .loader {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 154, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .footer-links {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .matchup-container { grid-template-columns: 1fr; }
+            .vs-badge { display: none; }
+            .hero-glow { width: 250px; height: 250px; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-mesh"></div>
+
+    <nav class="top-nav">
+        <a href="https://x.com/duel_duck" target="_blank">Project</a>
+        <a href="https://x.com/stan_duel_duck" target="_blank">CEO</a>
+        <a href="https://x.com/ai_elon_musk_" target="_blank">Developer</a>
+    </nav>
+
+    <header>
+        <div class="hero-glow"></div>
+        <h1>Duel Duck AI Contest</h1>
+        <p class="subtitle">Elevating prediction markets with neural-powered insights. Compete against the best AI models and legendary human traders.</p>
+        <div class="cta-group">
+            <button class="btn btn-primary" onclick="scrollToSection('analyzer')">Try AI Predictor</button>
+            <button class="btn btn-secondary" onclick="scrollToSection('matchup')">View Matchups</button>
+        </div>
+    </header>
+
+    <section id="analyzer" class="container">
+        <h2 class="section-title">AI Prediction Analyzer</h2>
+        <div class="glass-card">
+            <div class="sample-chips">
+                <span class="chip" onclick="fillPrompt('Will Bitcoin hit $100k before December 2024?')">Bitcoin $100k?</span>
+                <span class="chip" onclick="fillPrompt('Is Solana going to flip Ethereum in 24-hour volume this week?')">SOL vs ETH</span>
+                <span class="chip" onclick="fillPrompt('Will the Federal Reserve cut rates in their next meeting?')">Fed Rate Cut</span>
+            </div>
+            <textarea id="prediction-input" placeholder="Enter a prediction prompt... (e.g., Will Bitcoin hit a new all-time high next month?)" rows="4"></textarea>
+            
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="btn btn-primary" id="analyze-btn" onclick="runAnalysis()">
+                    <div class="loader" id="loader"></div>
+                    Analyze with AI
+                </button>
+                <button class="btn btn-secondary" onclick="resetPredictor()">Reset</button>
+            </div>
+
+            <div id="prediction-output">
+                <div class="glass-card" style="margin-top: 2rem; background: rgba(255,255,255,0.03);">
+                    <div class="result-header">
+                        <div>
+                            <span class="text-dim" style="font-size: 0.8rem; text-transform: uppercase;">AI Suggested Side</span>
+                            <div id="res-side" class="side-badge side-yes" style="margin-top: 0.5rem; display: block; width: fit-content;">YES</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="text-dim" style="font-size: 0.8rem; text-transform: uppercase;">Confidence</span>
+                            <div id="res-conf-text" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">85%</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="progress-container">
+                            <div id="res-conf-bar" class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <span class="text-dim" style="font-size: 0.8rem; text-transform: uppercase;">Risk Level:</span>
+                        <span id="res-risk" style="font-weight: 600; margin-left: 0.5rem;">Moderate</span>
+                    </div>
+
+                    <div class="text-dim" style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem;">Reasoning & Analysis</div>
+                    <ul id="res-reasoning" class="reasoning-list">
+                        <!-- Filled by JS -->
+                    </ul>
+
+                    <div id="res-verdict" style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; border-left: 4px solid var(--primary); font-style: italic; color: #fff;">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <button class="btn btn-secondary" style="margin-top: 1.5rem; padding: 0.6rem 1.2rem; font-size: 0.8rem;" onclick="copyResult()">Copy Analysis</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="matchup" class="container">
+        <h2 class="section-title">AI vs Human Simulator</h2>
+        <div class="matchup-container">
+            <div class="vs-badge">VS</div>
+            
+            <div class="glass-card competitor-card">
+                <span class="competitor-type">Neural Agent</span>
+                <h3>DeepDuck-GPT</h3>
+                <p class="text-dim" style="font-size: 0.9rem;">Processes millions of data points, sentiment patterns, and historical volatility in milliseconds.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary);">92% Accuracy</div>
+            </div>
+
+            <div class="glass-card competitor-card">
+                <span class="competitor-type">Human Legend</span>
+                <h3>Degen Conviction</h3>
+                <p class="text-dim" style="font-size: 0.9rem;">Driven by narrative, market intuition, and the sheer will of the community spirit.</p>
+                <div style="margin-top: 1.5rem; color: var(--secondary);">Infinite Upside</div>
+            </div>
+        </div>
+
+        <div class="match-btn-container">
+            <button class="btn btn-primary" id="matchup-btn" onclick="runMatchup()">Run Matchup Simulation</button>
+            <div id="matchup-result" style="margin-top: 2rem; min-height: 50px; font-weight: 600; color: var(--secondary);"></div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2 class="section-title">Live Contest Mockups</h2>
+        <div class="contest-grid">
+            <div class="glass-card contest-card">
+                <div class="reward-badge">5000 $DUCK</div>
+                <h3>Best AI Prediction</h3>
+                <p class="text-dim">Use our AI tools to submit the most accurate long-term forecast. Top ROI wins.</p>
+            </div>
+            <div class="glass-card contest-card">
+                <div class="reward-badge">Rare Duck NFT</div>
+                <h3>AI vs Human Duel</h3>
+                <p class="text-dim">Side with the machine or the crowd. The winning side splits the prize pool.</p>
+            </div>
+            <div class="glass-card contest-card">
+                <div class="reward-badge">Exclusive Access</div>
+                <h3>Fastest Signal</h3>
+                <p class="text-dim">Identify a trend using the AI analyzer before it hits mainstream social media.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2 class="section-title">Why this fits Duel Duck</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>More Engagement</h4>
+                <p class="text-dim">Gamified AI analysis keeps users coming back to test their theories against the model.</p>
+            </div>
+            <div class="feature-card">
+                <h4>More Competition</h4>
+                <p class="text-dim">Leaderboards for the best "AI Prompt Engineers" creates a new layer of skill-based gaming.</p>
+            </div>
+            <div class="feature-card">
+                <h4>More Content</h4>
+                <p class="text-dim">Shareable AI report cards drive viral growth on X as users flex their high-confidence wins.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Unofficial concept demo for the Duel Duck ecosystem.</p>
+        <div class="footer-links">
+            <a href="https://x.com/duel_duck" target="_blank">Twitter</a>
+            <a href="https://x.com/stan_duel_duck" target="_blank">Stan</a>
+            <a href="https://x.com/ai_elon_musk_" target="_blank">Developer</a>
+        </div>
+        <p style="margin-top: 2rem; opacity: 0.4; font-size: 0.7rem;">&copy; 2024 Duel Duck AI Concept Lab</p>
+    </footer>
+
+    <script>
+        /* 
+           =========================================
+           GEMINI API CONFIGURATION
+           =========================================
+           To use live AI: 
+           1. Get an API key from https://aistudio.google.com/
+           2. Paste it below.
+           =========================================
+        */
+        const GEMINI_API_KEY = "PASTE_YOUR_KEY_HERE"; 
+
+        // Utilities
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function fillPrompt(text) {
+            document.getElementById('prediction-input').value = text;
+        }
+
+        function resetPredictor() {
+            document.getElementById('prediction-input').value = '';
+            document.getElementById('prediction-output').style.display = 'none';
+        }
+
+        function copyResult() {
+            const verdict = document.getElementById('res-verdict').innerText;
+            navigator.clipboard.writeText(`Duel Duck AI Analysis: ${verdict}`);
+            alert('Analysis copied to clipboard!');
+        }
+
+        // Mock AI Generator (Used if no API key or as fallback)
+        function generateMockResult(input) {
+            const sides = ['YES', 'NO'];
+            const risks = ['Low', 'Moderate', 'High', 'Extreme'];
+            const side = sides[Math.floor(Math.random() * sides.length)];
+            const confidence = Math.floor(Math.random() * 30) + 65; // 65-95%
+            
+            const reasonings = [
+                "On-chain whale accumulation patterns suggest a strong support level.",
+                "Social sentiment variance is currently deviating from price action.",
+                "Historical Q4 performance for this asset class aligns with the predicted outcome.",
+                "Macro-economic indicators provide a tailwind for this specific timeframe."
+            ];
+
+            return {
+                side: side,
+                confidence: confidence,
+                risk: risks[Math.floor(Math.random() * risks.length)],
+                reasoning: reasonings,
+                verdict: `Based on neural synthesis of ${input.substring(0, 20)}..., the probability favors a ${side} outcome with a focus on liquidity volatility.`
+            };
+        }
+
+        // Core Analysis Function
+        async function runAnalysis() {
+            const input = document.getElementById('prediction-input').value;
+            if (!input) return alert("Please enter a prediction prompt.");
+
+            const btn = document.getElementById('analyze-btn');
+            const loader = document.getElementById('loader');
+            const output = document.getElementById('prediction-output');
+
+            // UI State: Loading
+            btn.disabled = true;
+            loader.style.display = 'inline-block';
+            output.style.display = 'none';
+
+            let result;
+
+            // Check if API key is provided and valid (not the placeholder)
+            if (GEMINI_API_KEY && GEMINI_API_KEY !== "PASTE_YOUR_KEY_HERE") {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `Analyze this prediction: "${input}". 
+                                    Return a JSON object only with these keys: 
+                                    side (YES or NO), 
+                                    confidence (number 1-100), 
+                                    risk (Low, Moderate, High), 
+                                    reasoning (array of 3 short strings), 
+                                    verdict (one sentence summary).`
+                                }]
+                            }]
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    const textResult = data.candidates[0].content.parts[0].text;
+                    // Clean JSON if model returns markdown blocks
+                    const cleanedJson = textResult.replace(/```json|```/g, '');
+                    result = JSON.parse(cleanedJson);
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    result = generateMockResult(input); // Fallback
+                }
+            } else {
+                // Simulation Delay for realistic feel
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                result = generateMockResult(input);
+            }
+
+            // Update UI
+            document.getElementById('res-side').innerText = result.side;
+            document.getElementById('res-side').className = `side-badge side-${result.side.toLowerCase()}`;
+            document.getElementById('res-conf-text').innerText = `${result.confidence}%`;
+            document.getElementById('res-conf-bar').style.width = `${result.confidence}%`;
+            document.getElementById('res-risk').innerText = result.risk;
+            
+            const reasonList = document.getElementById('res-reasoning');
+            reasonList.innerHTML = '';
+            result.reasoning.forEach(r => {
+                const li = document.createElement('li');
+                li.innerText = r;
+                reasonList.appendChild(li);
+            });
+
+            document.getElementById('res-verdict').innerText = result.verdict;
+
+            // Show Results
+            loader.style.display = 'none';
+            btn.disabled = false;
+            output.style.display = 'block';
+        }
+
+        // Matchup Simulator logic
+        function runMatchup() {
+            const btn = document.getElementById('matchup-btn');
+            const resDiv = document.getElementById('matchup-result');
+            
+            btn.disabled = true;
+            resDiv.innerText = "Simulating market conditions...";
+            
+            setTimeout(() => {
+                const winner = Math.random() > 0.5 ? "DeepDuck AI" : "Human Conviction";
+                const line = winner === "DeepDuck AI" 
+                    ? "Winner: AI. Reason: Emotionless execution during the flash dip."
+                    : "Winner: Human. Reason: Spotted the 'Duck Meme' narrative before the bots.";
+                
+                resDiv.innerHTML = `<span style="color: var(--primary)">${line}</span>`;
+                btn.disabled = false;
+            }, 2000);
+        }
+    </script>
+</body>
+<!-- 
+    INSTRUCTIONS:
+    1. Rename this file to `index.html`.
+    2. To enable live AI, paste your Google Gemini API key in the GEMINI_API_KEY constant in the script tag.
+    3. Open in any modern browser to view.
+    4. Deploy: This file is ready for one-click deployment to Vercel, Netlify, or GitHub Pages.
+-->
+</html>
